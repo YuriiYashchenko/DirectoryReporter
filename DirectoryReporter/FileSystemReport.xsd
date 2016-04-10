@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="FileSystemReport"
+    targetNamespace="http://tempuri.org/FileSystemReport.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/FileSystemReport.xsd"
+    xmlns:mstns="http://tempuri.org/FileSystemReport.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+    <xs:element name="Directory">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="FullPath" type="xs:string"/>
+          <!--<xs:element name="Size" type="xs:string"/>-->
+          <xs:element name="Created" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="File">
+      <xs:complexType >
+        <xs:sequence>
+          <xs:element name="FullPath" type="xs:string"/>
+          <xs:element name="Size" type="xs:string"/>
+          <xs:element name="Created" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+</xs:schema>
