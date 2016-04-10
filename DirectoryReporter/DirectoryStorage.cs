@@ -39,6 +39,7 @@ namespace DirectoryReporter
             else {
                 if (IsPathReceivingCompleted)
                 {
+
                     OnPathRecived.Set();
                     return null;
                 }
