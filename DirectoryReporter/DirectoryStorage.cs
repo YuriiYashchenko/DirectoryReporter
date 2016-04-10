@@ -7,37 +7,51 @@ namespace DirectoryReporter
 {
     public class DirectoryStorage
     {
+        public EventWaitHandle OnPathRecived;
+
         private List<string> Pathes;
+
+        private volatile bool IsPathReceivingCompleted;
+
+        public void PathReceivingCompleted() {
+            IsPathReceivingCompleted = true;
+            OnPathRecived.Set();
+        }
 
         private int LastSentIndex;
 
-        private int PathesCount;
-
-        public delegate void PathPosting (Object s, PathPushedEventArgs e);
-
-        public event PathPosting OnPathPushed;
-
         public DirectoryStorage()
         {
+            OnPathRecived = new EventWaitHandle(false, EventResetMode.AutoReset);
             Pathes = new List<string>();
         }
-        
-        public string GetNextPath() {
+
+        public string GetNextPath()
+        {
             string result = String.Empty;
-            if (LastSentIndex < Pathes.Count)
+
+            if (Pathes.Count > LastSentIndex)
             {
-                result = Pathes[LastSentIndex];
+                OnPathRecived.Set();
+                result = Pathes[LastSentIndex];               
                 Interlocked.Increment(ref LastSentIndex);
             }
+            else {
+                if (IsPathReceivingCompleted)
+                {
+                    OnPathRecived.Set();
+                    return null;
+                }
+            }            
             return result;
         }
 
-        public void PushDirectoryPath(string path){
+        public void PushDirectoryPath(string path)
+        {
             Monitor.Enter(this.Pathes);
             Pathes.Add(path);
             Monitor.Exit(this.Pathes);
-            
-            //OnPathPushed(this, new PathPushedEventArgs() { Message = path });
-        }        
+            OnPathRecived.Set();
+        }
     }
 }

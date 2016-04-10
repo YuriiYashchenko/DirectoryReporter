@@ -9,11 +9,12 @@ namespace DirectoryReporter
         private FolderAnalyzer Analyzer;
         private XmlFileWriter WriterToXml;
         private object WriterToUI;
+        //private EventWaitHandle OnPathRecived;
 
         public MainForm()
         {
             InitializeComponent();
-            Analyzer = FolderAnalyzer.Instance;            
+            Analyzer = FolderAnalyzer.Instance;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -26,25 +27,36 @@ namespace DirectoryReporter
         }
 
         private void button2_Click(object sender, EventArgs e)
-        {           
+        {
             var storage = new DirectoryStorage();
+            //storage.OnPathRecived = OnPathRecived;
+
             Analyzer.Storage = storage;
             Analyzer.OnPathPostingStart += PrepareXmlFileWrite;
-            Analyzer.OnPathPostingFinish += ThreadsStatusCheck;
-          
-            string path = @"C:\Program Files\Git";
+            Analyzer.OnPathPostingFinish += FolderScaningFinish;
+
+            string path = @"C:\Program Files\Google";
             Analyzer.StartAnalyze(path);
 
         }
 
-        private void ThreadsStatusCheck(object state, EventArgs e)
+        private void FolderScaningFinish(object state, EventArgs e)
         {
-            MessageBox.Show("Done");
+            MessageBox.Show("Folder scanining has done");
+            
         }
+
+        private void XMLPopulatingFinish(object state, EventArgs e)
+        {
+            MessageBox.Show("Xml file writing has done");
+
+        }
+
         private void PrepareXmlFileWrite(object state, EventArgs e)
         {
             var writer = new XmlFileWriter(@"C:\Users\Iurii\Desktop\1\1.xml");
             writer.Storage = Analyzer.Storage;
+            writer.OnXmlFilePopulateFinish += XMLPopulatingFinish;
             writer.InitialDocumentWriting();
         }
     }

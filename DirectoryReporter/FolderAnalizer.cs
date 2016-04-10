@@ -50,18 +50,25 @@ namespace DirectoryReporter
         {
             try
             {
-                foreach (var f in Directory.GetFiles(directoryPath))
+                try
                 {
-                    Storage.PushDirectoryPath(f);
-                    // Console.WriteLine(f);
+                    foreach (var f in Directory.GetFiles(directoryPath))
+                    {
+                        Storage.PushDirectoryPath(f);
+                    }
+                    foreach (string d in Directory.GetDirectories(directoryPath))
+                    {
+                        Storage.PushDirectoryPath(d);
+                        DirectorySearch(d);
+                    }
                 }
-                foreach (string d in Directory.GetDirectories(directoryPath))
+                catch (UnauthorizedAccessException ex_aue)
                 {
-                    Storage.PushDirectoryPath(d);
-                    DirectorySearch(d);
+                    int tti = 1;
                 }
                 if (directoryPath == CurrentAnalizedPath)
                 {
+                    Storage.PathReceivingCompleted();
                     if (OnPathPostingFinish != null)
                     {
                         OnPathPostingFinish(this, EventArgs.Empty);
@@ -70,7 +77,7 @@ namespace DirectoryReporter
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                string s = ex.Message;
             }
         }
 
