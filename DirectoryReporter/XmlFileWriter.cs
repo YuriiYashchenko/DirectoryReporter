@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -12,7 +13,7 @@ namespace DirectoryReporter
     {
 
         private XDocument Document;
-        private string SaveLoation;
+        private string SaveLocation;
 
         public delegate void XmlPopulating(Object s, EventArgs e);
         public event XmlPopulating OnXmlFilePopulateStart;
@@ -25,43 +26,78 @@ namespace DirectoryReporter
         public XmlFileWriter(string xmlFilePath)
         {
             Document = new XDocument();
-            Document.Add(new XElement("Root"));
-            SaveLoation = xmlFilePath;
+            Document.Add(new XElement("FileSystemEntities"));
+            SaveLocation = xmlFilePath;
+            if (File.Exists(SaveLocation))
+            {
+                File.Delete(xmlFilePath);
+            }
         }
 
-        private void Write(string message)
+        private void Write(FileSystemInfo fileSystemEntity)
         {
-            if (message != String.Empty)
+            XElement root = Document.Root; ;
+            if (!File.Exists(SaveLocation))
             {
-                Document.Descendants("Root").FirstOrDefault().Add(new XElement("Message", new XAttribute("path", message)));
+                root = new XElement("FileSystemEntities");
+                root.Save(SaveLocation);
+            }
+
+            if (fileSystemEntity is FileInfo)
+            {
+                FileInfo file = (FileInfo) fileSystemEntity;               
+                root.Add(
+                    new XElement("File",
+                         new XElement("FullName", file.FullName),
+                         new XElement("SizeInBytes", file.Length.ToString()),
+                         new XElement("Created", file.CreationTime.ToString())
+                        )
+                );
+            }
+            if (fileSystemEntity is DirectoryInfo)
+            {
+                DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;                
+                root.Add(
+                    new XElement("Directory",
+                         new XElement("FullName", dir.FullName),
+                         //new XElement("SizeInBytes", dir.Length.ToString()),
+                         new XElement("Created", dir.CreationTime.ToString())
+                        )
+                );
             }
         }
         private void DataReciever()
         {
-            bool isNewPathRecived = true;
-            while (isNewPathRecived)
-            {
-                string path = Storage.GetNextPath();
-                if (path != null)
-                {
-                    Write(path);
-                    isNewPathRecived = Storage.OnPathRecived.WaitOne();
-                }
-                else {
-                    isNewPathRecived = false;
-                }
-            }
             try
             {
-                Document.Save(SaveLoation);
+                bool isNewPathRecived = true;
+                while (isNewPathRecived)
+                {
+                    FileInfoFrame fileSystemEntity = Storage.GetNextPath();
+                    if (fileSystemEntity != null)
+                    {
+                        if (!fileSystemEntity.IsFrameEmpty)
+                        {
+                            Write(fileSystemEntity.FileSystemEntity);
+                        }
+                        isNewPathRecived = Storage.OnPathRecived.WaitOne();
+                    }
+                    else {
+                        isNewPathRecived = false;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 int tti = 1;
             }
-            if (OnXmlFilePopulateFinish != null)
+            finally
             {
-                OnXmlFilePopulateFinish(this, EventArgs.Empty);
+                Document.Save(SaveLocation);
+                if (OnXmlFilePopulateFinish != null)
+                {
+                    OnXmlFilePopulateFinish(this, EventArgs.Empty);
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -9,11 +10,12 @@ namespace DirectoryReporter
     {
         public EventWaitHandle OnPathRecived;
 
-        private List<string> Pathes;
+        private List<FileSystemInfo> FileSystemEntities;
 
         private volatile bool IsPathReceivingCompleted;
 
-        public void PathReceivingCompleted() {
+        public void PathReceivingCompleted()
+        {
             IsPathReceivingCompleted = true;
             OnPathRecived.Set();
         }
@@ -23,35 +25,43 @@ namespace DirectoryReporter
         public DirectoryStorage()
         {
             OnPathRecived = new EventWaitHandle(false, EventResetMode.AutoReset);
-            Pathes = new List<string>();
+            FileSystemEntities = new List<FileSystemInfo>();
         }
 
-        public string GetNextPath()
+        public FileInfoFrame GetNextPath()
         {
-            string result = String.Empty;
-
-            if (Pathes.Count > LastSentIndex)
+            var result = new FileInfoFrame();
+            if (FileSystemEntities.Count > LastSentIndex)
             {
                 OnPathRecived.Set();
-                result = Pathes[LastSentIndex];               
+                result.FileSystemEntity = FileSystemEntities[LastSentIndex];
                 Interlocked.Increment(ref LastSentIndex);
+                return result;
             }
             else {
                 if (IsPathReceivingCompleted)
                 {
-
                     OnPathRecived.Set();
                     return null;
                 }
-            }            
+            }
+            result.IsFrameEmpty = true;
             return result;
         }
 
         public void PushDirectoryPath(string path)
         {
-            Monitor.Enter(this.Pathes);
-            Pathes.Add(path);
-            Monitor.Exit(this.Pathes);
+            Monitor.Enter(this.FileSystemEntities);
+            FileSystemEntities.Add(new DirectoryInfo(path));
+            Monitor.Exit(this.FileSystemEntities);
+            OnPathRecived.Set();
+        }
+
+        public void PushFilePath(string path)
+        {
+            Monitor.Enter(this.FileSystemEntities);
+            FileSystemEntities.Add(new FileInfo(path));
+            Monitor.Exit(this.FileSystemEntities);
             OnPathRecived.Set();
         }
     }
