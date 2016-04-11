@@ -20,7 +20,10 @@ namespace DirectoryReporter
             OnPathRecived.Set();
         }
 
-        private int LastSentIndex;
+        private int LastXmlSentIndex;
+
+        private int LastTreeSentIndex;
+
 
         public DirectoryStorage()
         {
@@ -28,14 +31,14 @@ namespace DirectoryReporter
             FileSystemEntities = new List<FileSystemInfo>();
         }
 
-        public FileInfoFrame GetNextPath()
+        public FileInfoFrame GetNextXmlPath()
         {
             var result = new FileInfoFrame();
-            if (FileSystemEntities.Count > LastSentIndex)
+            if (FileSystemEntities.Count > LastXmlSentIndex)
             {
                 OnPathRecived.Set();
-                result.FileSystemEntity = FileSystemEntities[LastSentIndex];
-                Interlocked.Increment(ref LastSentIndex);
+                result.FileSystemEntity = FileSystemEntities[LastXmlSentIndex];
+                Interlocked.Increment(ref LastXmlSentIndex);
                 return result;
             }
             else {
@@ -48,6 +51,28 @@ namespace DirectoryReporter
             result.IsFrameEmpty = true;
             return result;
         }
+
+        public FileInfoFrame GetNextTreePath()
+        {
+            var result = new FileInfoFrame();
+            if (FileSystemEntities.Count > LastTreeSentIndex)
+            {
+                OnPathRecived.Set();
+                result.FileSystemEntity = FileSystemEntities[LastTreeSentIndex];
+                Interlocked.Increment(ref LastTreeSentIndex);
+                return result;
+            }
+            else {
+                if (IsPathReceivingCompleted)
+                {
+                    OnPathRecived.Set();
+                    return null;
+                }
+            }
+            result.IsFrameEmpty = true;
+            return result;
+        }
+
 
         public void PushDirectoryPath(string path)
         {

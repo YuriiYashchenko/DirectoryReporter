@@ -7,9 +7,6 @@ namespace DirectoryReporter
     public partial class MainForm : Form
     {
         private FolderAnalyzer Analyzer;
-        private XmlFileWriter WriterToXml;
-        private object WriterToUI;
-        //private EventWaitHandle OnPathRecived;
 
         public MainForm()
         {
@@ -29,10 +26,10 @@ namespace DirectoryReporter
         private void button2_Click(object sender, EventArgs e)
         {
             var storage = new DirectoryStorage();
-            //storage.OnPathRecived = OnPathRecived;
-
+            
             Analyzer.Storage = storage;
             Analyzer.OnPathPostingStart += PrepareXmlFileWrite;
+            Analyzer.OnPathPostingStart += PrepareTreeView;
             Analyzer.OnPathPostingFinish += FolderScaningFinish;
 
             string path = @"C:\Program Files\Google";
@@ -49,7 +46,11 @@ namespace DirectoryReporter
         private void XMLPopulatingFinish(object state, EventArgs e)
         {
             MessageBox.Show("Xml file writing has done");
+        }
 
+        private void TreePopulatinFinish(object state, EventArgs e)
+        {
+            MessageBox.Show("Xml file writing has done");
         }
 
         private void PrepareXmlFileWrite(object state, EventArgs e)
@@ -57,7 +58,15 @@ namespace DirectoryReporter
             var writer = new XmlFileWriter(@"C:\Users\Iurii\Desktop\1\1.xml");
             writer.Storage = Analyzer.Storage;
             writer.OnXmlFilePopulateFinish += XMLPopulatingFinish;
-            writer.InitialDocumentWriting();
+            writer.InitialWriting();
         }
+        private void PrepareTreeView(object state, EventArgs e)
+        {
+            var treeFiller = new TreeFiller(this.treeView1);
+            treeFiller.Storage = Analyzer.Storage;
+            treeFiller.OnTreePopulatingFinish += TreePopulatinFinish;
+            treeFiller.InitialWriting();
+        }
+
     }
 }

@@ -19,8 +19,6 @@ namespace DirectoryReporter
         public event XmlPopulating OnXmlFilePopulateStart;
         public event XmlPopulating OnXmlFilePopulateFinish;
 
-        public Thread XmlWriteThread;
-
         public DirectoryStorage Storage;
 
         public XmlFileWriter(string xmlFilePath)
@@ -45,7 +43,7 @@ namespace DirectoryReporter
 
             if (fileSystemEntity is FileInfo)
             {
-                FileInfo file = (FileInfo) fileSystemEntity;               
+                FileInfo file = (FileInfo)fileSystemEntity;
                 root.Add(
                     new XElement("File",
                          new XElement("FullName", file.FullName),
@@ -56,7 +54,7 @@ namespace DirectoryReporter
             }
             if (fileSystemEntity is DirectoryInfo)
             {
-                DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;                
+                DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;
                 root.Add(
                     new XElement("Directory",
                          new XElement("FullName", dir.FullName),
@@ -73,7 +71,7 @@ namespace DirectoryReporter
                 bool isNewPathRecived = true;
                 while (isNewPathRecived)
                 {
-                    FileInfoFrame fileSystemEntity = Storage.GetNextPath();
+                    FileInfoFrame fileSystemEntity = Storage.GetNextXmlPath();
                     if (fileSystemEntity != null)
                     {
                         if (!fileSystemEntity.IsFrameEmpty)
@@ -101,7 +99,7 @@ namespace DirectoryReporter
             }
         }
 
-        public void InitialDocumentWriting()
+        public void InitialWriting()
         {
             Thread XmlWriteThread = new Thread(() => DataReciever());
             XmlWriteThread.Start();
