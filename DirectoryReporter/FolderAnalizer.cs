@@ -41,7 +41,7 @@ namespace DirectoryReporter
         public void StartAnalyze(string path)
         {
             CurrentAnalizedPath = path;
-            Thread DirectoryScan = new Thread(() => DirectorySearch(path));
+            Thread DirectoryScan = new Thread(() => DirectorySearch(path)) {Name = "Folder scan thread"};
             DirectoryScan.Start();
             OnPathPostingStart(this, EventArgs.Empty);
         }
@@ -50,6 +50,10 @@ namespace DirectoryReporter
         {
             try
             {
+                if (directoryPath == CurrentAnalizedPath)
+                {
+                    Storage.PushDirectoryPath(directoryPath);
+                }
                 foreach (var f in Directory.GetFiles(directoryPath))
                 {
                     Storage.PushFilePath(f);

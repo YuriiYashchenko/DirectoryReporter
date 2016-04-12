@@ -32,7 +32,7 @@ namespace DirectoryReporter
             Analyzer.OnPathPostingStart += PrepareTreeView;
             Analyzer.OnPathPostingFinish += FolderScaningFinish;
 
-            string path = @"C:\Program Files\Google";
+            string path = @"C:\Users\Iurii\Desktop\Minecraft_1.8_Forge\Minecraft_1.8_Forge";
             Analyzer.StartAnalyze(path);
 
         }
@@ -50,7 +50,7 @@ namespace DirectoryReporter
 
         private void TreePopulatinFinish(object state, EventArgs e)
         {
-            MessageBox.Show("Xml file writing has done");
+            MessageBox.Show("Tree writing has done");
         }
 
         private void PrepareXmlFileWrite(object state, EventArgs e)

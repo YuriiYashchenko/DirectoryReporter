@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DirectoryReporter
 {
-    public class FileEntity : IFileSystemEntity
-    {
-        public string Path;
-        public string Created;
-    }
+    //public class FileEntity : IFileSystemEntity
+    //{
+    //    public string Path;
+    //    public string Created;
+    //}
 }

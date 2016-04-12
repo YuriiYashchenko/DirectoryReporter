@@ -24,6 +24,12 @@ namespace DirectoryReporter
 
         private int LastTreeSentIndex;
 
+        public string GetRootPath() {
+            if (FileSystemEntities.Count > 0) {
+                return ((DirectoryInfo)FileSystemEntities.First()).Parent.FullName;
+            }
+            return String.Empty;
+        } 
 
         public DirectoryStorage()
         {
@@ -89,5 +95,11 @@ namespace DirectoryReporter
             Monitor.Exit(this.FileSystemEntities);
             OnPathRecived.Set();
         }
+
+        //public FileInfoFrame GetParent(FileInfoFrame frame) {
+        //    if (frame.FileSystemEntity == FileSystemEntities[0]) {
+
+        //    }
+        //}
     }
 }

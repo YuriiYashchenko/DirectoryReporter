@@ -34,36 +34,54 @@ namespace DirectoryReporter
 
         private void Write(FileSystemInfo fileSystemEntity)
         {
-            XElement root = Document.Root; ;
+            XElement root = Document.Root;
             if (!File.Exists(SaveLocation))
             {
                 root = new XElement("FileSystemEntities");
                 root.Save(SaveLocation);
             }
 
-            if (fileSystemEntity is FileInfo)
+            if (fileSystemEntity.GetType() == typeof(FileInfo))
             {
                 FileInfo file = (FileInfo)fileSystemEntity;
-                root.Add(
+                string path = file.DirectoryName;
+                GetNode(path).Add(
                     new XElement("File",
-                         new XElement("FullName", file.FullName),
-                         new XElement("SizeInBytes", file.Length.ToString()),
-                         new XElement("Created", file.CreationTime.ToString())
-                        )
+                        new XAttribute("Name", file.Name),
+                        new XAttribute("FullName", file.FullName),
+                        new XAttribute("SizeInBytes", file.Length.ToString()),
+                        new XAttribute("Created", file.CreationTime.ToString()))
                 );
             }
-            if (fileSystemEntity is DirectoryInfo)
+            if (fileSystemEntity.GetType() == typeof(DirectoryInfo))
             {
                 DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;
-                root.Add(
+                string path = dir.Parent.FullName;
+                GetNode(path).Add(
                     new XElement("Directory",
-                         new XElement("FullName", dir.FullName),
-                         //new XElement("SizeInBytes", dir.Length.ToString()),
-                         new XElement("Created", dir.CreationTime.ToString())
-                        )
+                        new XAttribute("Name", dir.Name),
+                        new XAttribute("FullName", dir.FullName),
+                        new XAttribute("Created", dir.CreationTime.ToString()))
                 );
             }
+            Document.Save(SaveLocation);
         }
+
+        private XElement GetNode(string path)
+        {
+            XElement element = Document.Root;
+            if (path == Storage.GetRootPath())
+            {
+                return element;
+            }
+            List<string> ParentPathParts = path.Substring(Storage.GetRootPath().Length + 1).Split(Path.DirectorySeparatorChar).ToList();
+            foreach (var part in ParentPathParts)
+            {
+                element = element.Elements().First(e => e.Attribute("Name")?.Value == part); // ?. is cool
+            }
+            return element;
+        }
+                
         private void DataReciever()
         {
             try
@@ -101,7 +119,7 @@ namespace DirectoryReporter
 
         public void InitialWriting()
         {
-            Thread XmlWriteThread = new Thread(() => DataReciever());
+            Thread XmlWriteThread = new Thread(() => DataReciever()) { Name = "Xml fill thread" };
             XmlWriteThread.Start();
         }
 

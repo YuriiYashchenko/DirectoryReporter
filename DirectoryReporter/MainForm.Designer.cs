@@ -56,9 +56,11 @@
             // 
             // treeView1
             // 
-            this.treeView1.Location = new System.Drawing.Point(13, 12);
+            this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(198, 245);
+            this.treeView1.Size = new System.Drawing.Size(387, 245);
             this.treeView1.TabIndex = 2;
             // 
             // MainForm
