@@ -32,15 +32,16 @@ namespace DirectoryReporter
             Analyzer.OnPathPostingStart += PrepareTreeView;
             Analyzer.OnPathPostingFinish += FolderScaningFinish;
 
-            string path = @"C:\Users\Iurii\Desktop\Minecraft_1.8_Forge\Minecraft_1.8_Forge";
+            //string path = @"C:\Users\Iurii\Desktop\Minecraft_1.8_Forge\Minecraft_1.8_Forge";
+            string path = @"C:\";
+
             Analyzer.StartAnalyze(path);
 
         }
 
         private void FolderScaningFinish(object state, EventArgs e)
         {
-            MessageBox.Show("Folder scanining has done");
-            
+            MessageBox.Show("Folder scanining has done");            
         }
 
         private void XMLPopulatingFinish(object state, EventArgs e)

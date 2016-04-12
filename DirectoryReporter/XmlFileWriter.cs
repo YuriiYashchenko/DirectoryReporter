@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace DirectoryReporter
@@ -56,32 +55,52 @@ namespace DirectoryReporter
             if (fileSystemEntity.GetType() == typeof(DirectoryInfo))
             {
                 DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;
-                string path = dir.Parent.FullName;
+                string path = dir.FullName;
+                if (dir.Parent != null)
+                {
+                    path = dir.Parent.FullName;
+                }
                 GetNode(path).Add(
-                    new XElement("Directory",
-                        new XAttribute("Name", dir.Name),
-                        new XAttribute("FullName", dir.FullName),
-                        new XAttribute("Created", dir.CreationTime.ToString()))
+                new XElement("Directory",
+                    new XAttribute("Name", dir.Name),
+                    new XAttribute("FullName", dir.FullName),
+                    new XAttribute("Created", dir.CreationTime.ToString()))
                 );
-            }
-            Document.Save(SaveLocation);
+                Document.Save(SaveLocation);
+            }           
         }
 
         private XElement GetNode(string path)
         {
             XElement element = Document.Root;
-            if (path == Storage.GetRootPath())
+            if (String.IsNullOrEmpty(Storage.RootPath))
             {
-                return element;
+                //Logic when directory is drive root
+                List<string> ParentPathParts = path.Split(Path.DirectorySeparatorChar).Skip(1).ToList();
+                if (ParentPathParts.FirstOrDefault() == "")
+                {
+                    return element;
+                }
+                foreach (var part in ParentPathParts)
+                {
+                    element = element.Elements().First(e => e.Attribute("Name")?.Value == part);
+                }
             }
-            List<string> ParentPathParts = path.Substring(Storage.GetRootPath().Length + 1).Split(Path.DirectorySeparatorChar).ToList();
-            foreach (var part in ParentPathParts)
+            else
             {
-                element = element.Elements().First(e => e.Attribute("Name")?.Value == part); // ?. is cool
+                if (path == Storage.RootPath)
+                {
+                    return element;
+                }
+                List<string> ParentPathParts = path.Substring(Storage.RootPath.Length + 1).Split(Path.DirectorySeparatorChar).ToList();
+                foreach (var part in ParentPathParts)
+                {
+                    element = element.Elements().First(e => e.Attribute("Name")?.Value == part); // ?. is cool
+                }
             }
             return element;
         }
-                
+
         private void DataReciever()
         {
             try
@@ -119,12 +138,12 @@ namespace DirectoryReporter
 
         public void InitialWriting()
         {
-            Thread XmlWriteThread = new Thread(() => DataReciever()) { Name = "Xml fill thread" };
+            Thread XmlWriteThread = new Thread(() => DataReciever()) { Name = "XML fill thread" };
             XmlWriteThread.Start();
         }
 
 
-        // That was temporary solution thar not use WaitHandle.
+        // That was temporary solution that not use WaitHandle.
         //private void DataReciever()
         //{
         //    while (true)

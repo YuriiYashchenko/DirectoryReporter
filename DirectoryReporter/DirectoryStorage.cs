@@ -24,13 +24,11 @@ namespace DirectoryReporter
 
         private int LastTreeSentIndex;
 
-        public string GetRootPath() {
-            if (FileSystemEntities.Count > 0) {
-                return ((DirectoryInfo)FileSystemEntities.First()).Parent.FullName;
-            }
-            return String.Empty;
-        } 
-
+        public string RootPath {
+            private set;
+            get;
+        }
+        
         public DirectoryStorage()
         {
             OnPathRecived = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -83,7 +81,19 @@ namespace DirectoryReporter
         public void PushDirectoryPath(string path)
         {
             Monitor.Enter(this.FileSystemEntities);
-            FileSystemEntities.Add(new DirectoryInfo(path));
+            var dir = new DirectoryInfo(path);
+            if (FileSystemEntities.Count == 0)
+            {
+                if (dir.FullName == dir.Root.FullName)
+                {
+                    RootPath = String.Empty;
+                }
+                else
+                {
+                    RootPath = dir.Parent.FullName;
+                }
+            }
+            FileSystemEntities.Add(dir);           
             Monitor.Exit(this.FileSystemEntities);
             OnPathRecived.Set();
         }
@@ -95,11 +105,6 @@ namespace DirectoryReporter
             Monitor.Exit(this.FileSystemEntities);
             OnPathRecived.Set();
         }
-
-        //public FileInfoFrame GetParent(FileInfoFrame frame) {
-        //    if (frame.FileSystemEntity == FileSystemEntities[0]) {
-
-        //    }
-        //}
+               
     }
 }

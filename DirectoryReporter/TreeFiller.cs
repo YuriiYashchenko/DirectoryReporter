@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DirectoryReporter
@@ -14,9 +12,7 @@ namespace DirectoryReporter
         public delegate void TreePopulating(Object s, EventArgs e);
         public event TreePopulating OnTreePopulatingStart;
         public event TreePopulating OnTreePopulatingFinish;
-
-        //public Thread TreeFillThread;
-
+        
         public DirectoryStorage Storage;
 
         private TreeView TargetTree;
@@ -44,7 +40,7 @@ namespace DirectoryReporter
             parent.Tag = fileSystemEntity.FullName;
             if (TargetTree.Nodes.Count == 0)
             {
-                //do something with firest node
+                //Do something with first node. Modifi 
                 TargetTree.Invoke(new Action<TreeNode>((e) => TargetTree.Nodes.Add(parent)), parent);
                 return;
             }
