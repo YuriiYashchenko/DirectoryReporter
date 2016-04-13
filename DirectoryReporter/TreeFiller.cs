@@ -12,7 +12,7 @@ namespace DirectoryReporter
         public delegate void TreePopulating(Object s, EventArgs e);
         public event TreePopulating OnTreePopulatingStart;
         public event TreePopulating OnTreePopulatingFinish;
-        
+
         public DirectoryStorage Storage;
 
         private TreeView TargetTree;
@@ -40,11 +40,15 @@ namespace DirectoryReporter
             parent.Tag = fileSystemEntity.FullName;
             if (TargetTree.Nodes.Count == 0)
             {
-                //Do something with first node. Modifi 
+                /*  Do something with the first node. Actually nodes are not adding in this thread because modification of WinForm controls
+                    is not possible from another thread.
+                 */
                 TargetTree.Invoke(new Action<TreeNode>((e) => TargetTree.Nodes.Add(parent)), parent);
                 return;
             }
             else {
+                /*The rest of nodes are adding using recursive search of in thr Tree View nodes.*/
+
                 if (fileSystemEntity.GetType() == typeof(FileInfo))
                 {
                     parent = FlattenTree(TargetTree)

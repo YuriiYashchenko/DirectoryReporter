@@ -21,9 +21,7 @@ namespace DirectoryReporter
         public delegate void PathPostingSatus(Object s, EventArgs e);
         public event PathPostingSatus OnPathPostingStart;
         public event PathPostingSatus OnPathPostingFinish;
-
-        private string CurrentAnalizedPath;
-
+           
         public string TargetDirectoryPath;
 
         public static FolderAnalyzer Instance
@@ -34,10 +32,9 @@ namespace DirectoryReporter
             }
         }
 
-        public void StartAnalyze(string path)
-        {
-            CurrentAnalizedPath = path;
-            Thread DirectoryScan = new Thread(() => DirectorySearch(path)) {Name = "Folder scan thread"};
+        public void StartAnalyze()
+        {            
+            Thread DirectoryScan = new Thread(() => DirectorySearch(TargetDirectoryPath)) {Name = "Folder scan thread"};
             DirectoryScan.Start();
             OnPathPostingStart(this, EventArgs.Empty);
         }
@@ -46,7 +43,7 @@ namespace DirectoryReporter
         {
             try
             {
-                if (directoryPath == CurrentAnalizedPath)
+                if (directoryPath == TargetDirectoryPath)
                 {
                     Storage.PushDirectoryPath(directoryPath);
                 }
@@ -70,7 +67,7 @@ namespace DirectoryReporter
             }
             finally
             {
-                if (directoryPath == CurrentAnalizedPath)
+                if (directoryPath == TargetDirectoryPath)
                 {
                     Storage.PathReceivingCompleted();
                     if (OnPathPostingFinish != null)

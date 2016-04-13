@@ -67,7 +67,7 @@ namespace DirectoryReporter
                     new XAttribute("Created", dir.CreationTime.ToString()))
                 );
                 Document.Save(SaveLocation);
-            }           
+            }
         }
 
         private XElement GetNode(string path)
@@ -76,14 +76,17 @@ namespace DirectoryReporter
             if (String.IsNullOrEmpty(Storage.RootPath))
             {
                 //Logic when directory is drive root
-                List<string> ParentPathParts = path.Split(Path.DirectorySeparatorChar).Skip(1).ToList();
-                if (ParentPathParts.FirstOrDefault() == "")
+                if (element.Nodes().Count() == 0)
                 {
                     return element;
                 }
-                foreach (var part in ParentPathParts)
-                {
-                    element = element.Elements().First(e => e.Attribute("Name")?.Value == part);
+                else {
+                    element = element.Elements().First();
+                    List<string> ParentPathParts = path.Split(Path.DirectorySeparatorChar).Skip(2).ToList();
+                    foreach (var part in ParentPathParts)
+                    {
+                        element = element.Elements().First(e => e.Attribute("Name")?.Value == part);
+                    }
                 }
             }
             else
