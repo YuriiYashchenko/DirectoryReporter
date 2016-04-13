@@ -27,11 +27,12 @@ namespace DirectoryReporter
 
         private int LastTreeSentIndex;
 
-        public string RootPath {
+        public string RootPath
+        {
             private set;
             get;
         }
-        
+
         public DirectoryStorage()
         {
             OnPathRecived = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -83,31 +84,37 @@ namespace DirectoryReporter
 
         public void PushDirectoryPath(string path)
         {
-            Monitor.Enter(this.FileSystemEntities);
-            var dir = new DirectoryInfo(path);
-            if (FileSystemEntities.Count == 0)
+            if (path.Length < 260)
             {
-                if (dir.FullName == dir.Root.FullName)
+                Monitor.Enter(this.FileSystemEntities);
+                var dir = new DirectoryInfo(path);
+                if (FileSystemEntities.Count == 0)
                 {
-                    RootPath = String.Empty;
+                    if (dir.FullName == dir.Root.FullName)
+                    {
+                        RootPath = String.Empty;
+                    }
+                    else
+                    {
+                        RootPath = dir.Parent.FullName;
+                    }
                 }
-                else
-                {
-                    RootPath = dir.Parent.FullName;
-                }
+                FileSystemEntities.Add(dir);
+                Monitor.Exit(this.FileSystemEntities);
+                OnPathRecived.Set();
             }
-            FileSystemEntities.Add(dir);           
-            Monitor.Exit(this.FileSystemEntities);
-            OnPathRecived.Set();
         }
 
         public void PushFilePath(string path)
         {
-            Monitor.Enter(this.FileSystemEntities);
-            FileSystemEntities.Add(new FileInfo(path));
-            Monitor.Exit(this.FileSystemEntities);
-            OnPathRecived.Set();
+            if (path.Length < 260)
+            {
+                Monitor.Enter(this.FileSystemEntities);
+                FileSystemEntities.Add(new FileInfo(path));
+                Monitor.Exit(this.FileSystemEntities);
+                OnPathRecived.Set();
+            }
         }
-               
+
     }
 }

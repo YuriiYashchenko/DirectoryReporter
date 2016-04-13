@@ -43,7 +43,7 @@ namespace DirectoryReporter
         */
         private void DirectorySearch(string directoryPath)
         {
-            directoryPath = @"C:\Users\iiashchenko\Desktop\Google-Dotnet-Samples-master\Google-Dotnet-Samples-master\Google-Site-Verification\SiteVerification-Sample\Daimto-SiteVerification\packages\Microsoft.Bcl.Async.1.0.168\lib\portable-net45+win8+wp8+wpa81";
+            //directoryPath = @"C:\Users\iiashchenko\Desktop\Google-Dotnet-Samples-master\Google-Dotnet-Samples-master\Google-Site-Verification\SiteVerification-Sample\Daimto-SiteVerification\packages\Microsoft.Bcl.Async.1.0.168\lib\portable-net45+win8+wp8+wpa81";
             var stack = new Stack<string>();
             stack.Push(directoryPath);
 
@@ -61,28 +61,12 @@ namespace DirectoryReporter
 
                         foreach (var f in Directory.GetFiles(current))
                         {
-                            if (f.Length < 261)
-                            {
-                                Storage.PushFilePath(f);
-                                // Rise message or log problem
-                            }
-                            else
-                            {
-                                int tti = 0;
-                            }                           
+                            Storage.PushFilePath(f);
                         }
                         foreach (string d in Directory.GetDirectories(current))
-                        {                            
-                            if (d.Length < 261)
-                            {
-                                stack.Push(d);
-                                Storage.PushDirectoryPath(d);
-                                // Rise message or log problem
-                            }
-                            else
-                            {
-                                int tti = 0;
-                            }
+                        {
+                            stack.Push(d);
+                            Storage.PushDirectoryPath(d);
                         }
                     }
                     catch (PathTooLongException ex_longpath)
