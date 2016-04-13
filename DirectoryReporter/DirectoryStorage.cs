@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace DirectoryReporter
 {
+    /*
+        This class is something close to provider in Observer pattern
+    */
     public class DirectoryStorage
     {
         public EventWaitHandle OnPathRecived;

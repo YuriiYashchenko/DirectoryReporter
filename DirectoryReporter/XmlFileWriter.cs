@@ -66,7 +66,10 @@ namespace DirectoryReporter
                     new XAttribute("FullName", dir.FullName),
                     new XAttribute("Created", dir.CreationTime.ToString()))
                 );
-                Document.Save(SaveLocation);
+                if (DateTime.Now.Second % 10 == 0)
+                {
+                    Document.Save(SaveLocation);
+                }
             }
         }
 
@@ -95,7 +98,7 @@ namespace DirectoryReporter
                 {
                     return element;
                 }
-                List<string> ParentPathParts = path.Substring(Storage.RootPath.Length + 1).Split(Path.DirectorySeparatorChar).ToList();
+                List<string> ParentPathParts = path.Substring(Storage.RootPath.Length).Split(Path.DirectorySeparatorChar).Skip(1).ToList();
                 foreach (var part in ParentPathParts)
                 {
                     element = element.Elements().First(e => e.Attribute("Name")?.Value == part); // ?. is cool
@@ -135,7 +138,7 @@ namespace DirectoryReporter
                 if (OnXmlFilePopulateFinish != null)
                 {
                     OnXmlFilePopulateFinish(this, EventArgs.Empty);
-                }
+                }                
             }
         }
 

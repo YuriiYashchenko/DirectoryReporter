@@ -48,17 +48,20 @@ namespace DirectoryReporter
 
         private void XMLPopulatingFinish(object state, EventArgs e)
         {
+            Analyzer.OnPathPostingStart -= PrepareXmlFileWrite;
             MessageBox.Show("Xml file writing has done");
         }
 
         private void TreePopulatinFinish(object state, EventArgs e)
         {
+            Analyzer.OnPathPostingStart -= PrepareTreeView;
             MessageBox.Show("Tree writing has done");
         }
 
         private void PrepareXmlFileWrite(object state, EventArgs e)
         {
-            var writer = new XmlFileWriter(@"1.xml");
+            string xmlSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), @"1.xml");
+            var writer = new XmlFileWriter(xmlSavePath);
             writer.Storage = Analyzer.Storage;
             writer.OnXmlFilePopulateFinish += XMLPopulatingFinish;
             writer.InitialWriting();
