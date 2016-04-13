@@ -7,6 +7,9 @@ using System.Windows.Forms;
 
 namespace DirectoryReporter
 {
+    /// <summary>
+    /// Consume directory and files from DirectoryStorage.
+    /// </summary>
     public class TreeFiller
     {
         public delegate void TreePopulating(Object s, EventArgs e);
@@ -38,7 +41,7 @@ namespace DirectoryReporter
                 return;
             }
             else {
-                /*The rest of nodes are adding using recursive search of in thr Tree View nodes.*/
+                /*The rest of nodes are adding using recursive search of in the Tree View nodes.*/
                 string parent = String.Empty;
                 if (fileSystemEntity.GetType() == typeof(FileInfo))
                 {

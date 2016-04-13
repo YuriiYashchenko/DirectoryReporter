@@ -8,7 +8,7 @@ namespace DirectoryReporter
     public partial class MainForm : Form
     {
         private FolderAnalyzer Analyzer;
-
+        private string XmlSaveFolder;
         public MainForm()
         {
             InitializeComponent();
@@ -67,8 +67,12 @@ namespace DirectoryReporter
         }
 
         private void PrepareXmlFileWrite(object state, EventArgs e)
-        {            
+        {
             string xmlSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), @"1.xml");
+            if (!String.IsNullOrEmpty(XmlSaveFolder))
+            {
+                xmlSavePath = Path.Combine(XmlSaveFolder, @"1.xml");
+            }
             var writer = new XmlFileWriter(xmlSavePath);
             writer.Storage = Analyzer.Storage;
             writer.OnXmlFilePopulateFinish += XMLPopulatingFinish;
@@ -87,5 +91,16 @@ namespace DirectoryReporter
             Analyzer.OnPathPostingStart -= PrepareTreeView;
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            xmlSavingBrowserDialog.ShowDialog();
+            if (!String.IsNullOrEmpty(xmlSavingBrowserDialog.SelectedPath))
+            {
+                if (Directory.Exists(xmlSavingBrowserDialog.SelectedPath))
+                {
+                    XmlSaveFolder = xmlSavingBrowserDialog.SelectedPath;                    
+                }
+            }
+        }
     }
 }

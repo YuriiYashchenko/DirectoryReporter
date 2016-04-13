@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 
 namespace DirectoryReporter
 {
+    /// <summary>
+    /// Consume directory and files from DirectoryStorage.
+    /// </summary>
     public class XmlFileWriter
     {
-
         private XDocument Document;
         private string SaveLocation;
 
@@ -44,32 +47,72 @@ namespace DirectoryReporter
             {
                 FileInfo file = (FileInfo)fileSystemEntity;
                 string path = file.DirectoryName;
+                var rights = String.Empty;
+                var owner = String.Empty;
+                try
+                {
+                    string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+                    owner = (file.GetAccessControl().GetOwner(typeof(System.Security.Principal.NTAccount)).ToString());
+                    var t = file.GetAccessControl()
+                        .GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount))
+                        .Cast<AuthorizationRule>().FirstOrDefault(r => r.IdentityReference.Value == userName);                    
+                    if (t != null)
+                    {
+                        rights = ((FileSystemAccessRule)t).FileSystemRights.ToString();
+                    }
+                }
+                catch (Exception ex) {
+                    int tti = 0;
+                }
                 GetNode(path).Add(
                     new XElement("File",
                         new XAttribute("Name", file.Name),
-                        new XAttribute("FullName", file.FullName),
                         new XAttribute("SizeInBytes", file.Length.ToString()),
-                        new XAttribute("Created", file.CreationTime.ToString()))
+                        new XAttribute("Created", file.CreationTime.ToString()),
+                        new XAttribute("Owner", owner),
+                        new XAttribute("Security", rights),
+                        new XAttribute("FullName", file.FullName)
+                        )
                 );
             }
             if (fileSystemEntity.GetType() == typeof(DirectoryInfo))
             {
+
                 DirectoryInfo dir = (DirectoryInfo)fileSystemEntity;
                 string path = dir.FullName;
                 if (dir.Parent != null)
                 {
                     path = dir.Parent.FullName;
                 }
+
+                var rights = String.Empty;
+                var owner = String.Empty;
+                try
+                {
+                    string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+                    owner = (dir.GetAccessControl().GetOwner(typeof(System.Security.Principal.NTAccount)).ToString());
+                    var t = dir.GetAccessControl()
+                        .GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount))
+                        .Cast<AuthorizationRule>().FirstOrDefault(r => r.IdentityReference.Value == userName);
+                    if (t != null)
+                    {
+                        rights = ((FileSystemAccessRule)t).FileSystemRights.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    int tti = 0;
+                }
+
                 GetNode(path).Add(
                 new XElement("Directory",
                     new XAttribute("Name", dir.Name),
-                    new XAttribute("FullName", dir.FullName),
-                    new XAttribute("Created", dir.CreationTime.ToString()))
-                );
-                if (DateTime.Now.Second % 10 == 0)
-                {
-                    Document.Save(SaveLocation);
-                }
+                    new XAttribute("Owner", owner),
+                    new XAttribute("Created", dir.CreationTime.ToString()),
+                    new XAttribute("FullName", dir.FullName)
+                    )
+
+                );               
             }
         }
 
@@ -122,6 +165,10 @@ namespace DirectoryReporter
                             Write(fileSystemEntity.FileSystemEntity);
                         }
                         isNewPathRecived = Storage.OnPathRecived.WaitOne();
+                        if (DateTime.Now.Second % 10 == 0)
+                        {
+                            Document.Save(SaveLocation);
+                        }
                     }
                     else {
                         isNewPathRecived = false;
@@ -138,7 +185,7 @@ namespace DirectoryReporter
                 if (OnXmlFilePopulateFinish != null)
                 {
                     OnXmlFilePopulateFinish(this, EventArgs.Empty);
-                }                
+                }
             }
         }
 
