@@ -19,8 +19,11 @@ namespace DirectoryReporter
         private FolderAnalyzer() { }
 
         public delegate void PathPostingSatus(Object s, EventArgs e);
+        public delegate void PathPostingMessage(Object s, TextEventArgs e);
+
         public event PathPostingSatus OnPathPostingStart;
         public event PathPostingSatus OnPathPostingFinish;
+        public event PathPostingMessage OnPathPostingWarning;
 
         public string TargetDirectoryPath;
 
@@ -43,7 +46,7 @@ namespace DirectoryReporter
         */
         private void DirectorySearch(string directoryPath)
         {
-            //directoryPath = @"C:\Users\iiashchenko\Desktop\Google-Dotnet-Samples-master\Google-Dotnet-Samples-master\Google-Site-Verification\SiteVerification-Sample\Daimto-SiteVerification\packages\Microsoft.Bcl.Async.1.0.168\lib\portable-net45+win8+wp8+wpa81";
+            //directoryPath = @"C:\Users\Iurii\Documents\My Videos";
             var stack = new Stack<string>();
             stack.Push(directoryPath);
 
@@ -58,7 +61,6 @@ namespace DirectoryReporter
                         {
                             Storage.PushDirectoryPath(current);
                         }
-
                         foreach (var f in Directory.GetFiles(current))
                         {
                             Storage.PushFilePath(f);
@@ -68,12 +70,7 @@ namespace DirectoryReporter
                             stack.Push(d);
                             Storage.PushDirectoryPath(d);
                         }
-                    }
-                    catch (PathTooLongException ex_longpath)
-                    {
-                        // Rise message or log problem
-                        string s = ex_longpath.Message;
-                    }
+                    }                    
                     catch (UnauthorizedAccessException ex_aue)
                     {
                         // Rise message or log problem
@@ -115,8 +112,11 @@ namespace DirectoryReporter
                 }
             }
             catch (UnauthorizedAccessException ex_aue)
-            {
-                int tti = 1;
+            {                
+                if (OnPathPostingWarning != null)
+                {
+                    OnPathPostingWarning(this, new TextEventArgs(ex_aue.Message));
+                }
             }
             catch (Exception ex)
             {

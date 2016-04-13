@@ -84,6 +84,7 @@ namespace DirectoryReporter
 
         public void PushDirectoryPath(string path)
         {
+            // or PathTooLongException using is possible          
             if (path.Length < 260)
             {
                 Monitor.Enter(this.FileSystemEntities);

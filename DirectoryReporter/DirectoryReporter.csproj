@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TextEventArgs.cs" />
     <Compile Include="FileInfoFrame.cs" />
     <Compile Include="ImportDocumentEventArgs.cs" />
     <Compile Include="DirectoryStorage.cs" />

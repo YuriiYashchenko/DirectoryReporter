@@ -35,21 +35,29 @@ namespace DirectoryReporter
             Analyzer.Storage = storage;
             Analyzer.OnPathPostingStart += PrepareXmlFileWrite;
             Analyzer.OnPathPostingStart += PrepareTreeView;
-            Analyzer.OnPathPostingFinish += FolderScaningFinish;            
+            Analyzer.OnPathPostingFinish += FolderScaningFinish;
+            Analyzer.OnPathPostingWarning += FolderScaningWarning;
             Analyzer.StartAnalyze();
             button2.Enabled = false;
 
         }
 
+        private void FolderScaningWarning(object state, TextEventArgs e)
+        {
+            Analyzer.OnPathPostingWarning -= FolderScaningWarning;
+            MessageBox.Show(e.Text);
+        }
+        
         private void FolderScaningFinish(object state, EventArgs e)
         {
-            MessageBox.Show("Folder scanining has done");
+            Analyzer.OnPathPostingFinish -= FolderScaningFinish;
+            MessageBox.Show("Folder scanning has done");
         }
 
         private void XMLPopulatingFinish(object state, EventArgs e)
         {
             Analyzer.OnPathPostingStart -= PrepareXmlFileWrite;
-            MessageBox.Show("Xml file writing has done");
+            MessageBox.Show("XML file writing has done");
         }
 
         private void TreePopulatinFinish(object state, EventArgs e)
@@ -59,12 +67,14 @@ namespace DirectoryReporter
         }
 
         private void PrepareXmlFileWrite(object state, EventArgs e)
-        {
+        {            
             string xmlSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), @"1.xml");
             var writer = new XmlFileWriter(xmlSavePath);
             writer.Storage = Analyzer.Storage;
             writer.OnXmlFilePopulateFinish += XMLPopulatingFinish;
             writer.InitialWriting();
+
+            Analyzer.OnPathPostingStart -= PrepareXmlFileWrite;
         }
         private void PrepareTreeView(object state, EventArgs e)
         {
@@ -73,6 +83,8 @@ namespace DirectoryReporter
             treeFiller.Storage = Analyzer.Storage;
             treeFiller.OnTreePopulatingFinish += TreePopulatinFinish;
             treeFiller.InitialWriting();
+
+            Analyzer.OnPathPostingStart -= PrepareTreeView;
         }
 
     }
