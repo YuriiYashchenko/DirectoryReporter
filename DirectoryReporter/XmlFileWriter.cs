@@ -62,6 +62,9 @@ namespace DirectoryReporter
                     }
                 }
                 catch (Exception ex) {
+                    /* Honestly, I think that it is not the right way to handle security permissions and owner info.
+                       This solution does not consider cases of complex access rules such as user groups and domain accounts. 
+                    */
                     int tti = 0;
                 }
                 GetNode(path).Add(

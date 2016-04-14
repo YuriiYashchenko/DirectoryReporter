@@ -12,6 +12,8 @@ namespace DirectoryReporter
     public class DirectoryStorage
     {
         public EventWaitHandle OnPathRecived;
+        public delegate void PathPostingMessage(Object s, TextEventArgs e);
+        public event PathPostingMessage OnPathPostingWarning;
 
         private List<FileSystemInfo> FileSystemEntities;
 
@@ -104,6 +106,15 @@ namespace DirectoryReporter
                 Monitor.Exit(this.FileSystemEntities);
                 OnPathRecived.Set();
             }
+            else {
+                if (OnPathPostingWarning != null)
+                {
+                    /* 
+                        For operations with pathes that longer than 260 chars WinApi or third party libraries may be used. 
+                    */
+                    OnPathPostingWarning(this, new TextEventArgs(String.Format("Path {0} is too long for processing", path)));
+                }
+            }
         }
 
         public void PushFilePath(string path)
@@ -114,6 +125,12 @@ namespace DirectoryReporter
                 FileSystemEntities.Add(new FileInfo(path));
                 Monitor.Exit(this.FileSystemEntities);
                 OnPathRecived.Set();
+            }
+            else {
+                if (OnPathPostingWarning != null)
+                {
+                    OnPathPostingWarning(this, new TextEventArgs(String.Format("Path {0} is too long for processing", path)));
+                }
             }
         }
 

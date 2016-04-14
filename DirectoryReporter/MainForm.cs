@@ -8,7 +8,7 @@ namespace DirectoryReporter
     public partial class MainForm : Form
     {
         private FolderAnalyzer Analyzer;
-        private string XmlSaveFolder;
+        private string XmlSaveFolder;       
         public MainForm()
         {
             InitializeComponent();
@@ -37,20 +37,25 @@ namespace DirectoryReporter
             Analyzer.OnPathPostingStart += PrepareTreeView;
             Analyzer.OnPathPostingFinish += FolderScaningFinish;
             Analyzer.OnPathPostingWarning += FolderScaningWarning;
+            Analyzer.Storage.OnPathPostingWarning += FolderScaningWarning;
+
             Analyzer.StartAnalyze();
             button2.Enabled = false;
 
         }
 
         private void FolderScaningWarning(object state, TextEventArgs e)
-        {
-            Analyzer.OnPathPostingWarning -= FolderScaningWarning;
-            MessageBox.Show(e.Text);
+        {  
+            textBox1.Invoke(new Action<string>((t) => textBox1.AppendText(t)), e.Text);
+            textBox1.Invoke(new Action<string>((t) => textBox1.AppendText(t)), Environment.NewLine);
+
         }
-        
+
         private void FolderScaningFinish(object state, EventArgs e)
         {
             Analyzer.OnPathPostingFinish -= FolderScaningFinish;
+            Analyzer.OnPathPostingWarning -= FolderScaningWarning;
+            Analyzer.Storage.OnPathPostingWarning -= FolderScaningWarning;
             MessageBox.Show("Folder scanning has done");
         }
 
@@ -68,10 +73,10 @@ namespace DirectoryReporter
 
         private void PrepareXmlFileWrite(object state, EventArgs e)
         {
-            string xmlSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), @"1.xml");
+            string xmlSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), @"Directory Reporter.xml");
             if (!String.IsNullOrEmpty(XmlSaveFolder))
             {
-                xmlSavePath = Path.Combine(XmlSaveFolder, @"1.xml");
+                xmlSavePath = Path.Combine(XmlSaveFolder, @"Directory Reporter.xml");
             }
             var writer = new XmlFileWriter(xmlSavePath);
             writer.Storage = Analyzer.Storage;

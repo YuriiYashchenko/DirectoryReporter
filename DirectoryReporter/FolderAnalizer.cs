@@ -70,18 +70,22 @@ namespace DirectoryReporter
                             stack.Push(d);
                             Storage.PushDirectoryPath(d);
                         }
-                    }                    
+                    }
                     catch (UnauthorizedAccessException ex_aue)
                     {
-                        // Rise message or log problem
-                        string s = ex_aue.Message;
+                        if (OnPathPostingWarning != null)
+                        {
+                            OnPathPostingWarning(this, new TextEventArgs(ex_aue.Message));
+                        }
                     }
-                    int ti = 0;
                 }
             }
             catch (Exception ex)
             {
-                string s = ex.Message;
+                if (OnPathPostingWarning != null)
+                {
+                    OnPathPostingWarning(this, new TextEventArgs(ex.Message));
+                }
             }
             finally
             {
@@ -92,7 +96,7 @@ namespace DirectoryReporter
                 }
             }
         }
-
+        /*
         private void DirectorySearchRecursivly(string directoryPath)
         {
             try
@@ -112,7 +116,7 @@ namespace DirectoryReporter
                 }
             }
             catch (UnauthorizedAccessException ex_aue)
-            {                
+            {
                 if (OnPathPostingWarning != null)
                 {
                     OnPathPostingWarning(this, new TextEventArgs(ex_aue.Message));
@@ -134,6 +138,6 @@ namespace DirectoryReporter
                 }
             }
         }
-
+        */
     }
 }
